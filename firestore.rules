@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// Permisos del panel. Se aplican en el servidor: aunque alguien modifique
+// la página, no puede leer ni escribir más de lo que su rol permite.
+//
+//  admin       → todo (cargar, editar, eliminar, cambiar estados, usuarios, técnicos)
+//  supervisor  → ver todo + asignar técnico y ordenar prioridades
+//  lector      → solo ver
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cuentas que siempre son administrador (igual que ADMIN_EMAILS en public/js/config.js).
+    function ADMINS() { return ['norberto.cabrera.a@gmail.com'.lower()]; }
+
+    function logueado() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    function email() { return request.auth.token.email.lower(); }
+    function perfil() { return /databases/$(database)/documents/usuarios/$(email()); }
+    function rol() { return exists(perfil()) ? get(perfil()).data.rol : ''; }
+
+    function esAdmin() { return logueado() && (email() in ADMINS() || rol() == 'admin'); }
+    function esSupervisor() { return esAdmin() || (logueado() && rol() == 'supervisor'); }
+    function puedeVer() { return esSupervisor() || (logueado() && rol() == 'lector'); }
+
+    match /usuarios/{correo} {
+      allow read: if logueado() && (correo == email() || esAdmin());
+      allow write: if esAdmin();
+    }
+
+    match /tecnicos/{id} {
+      allow read: if puedeVer();
+      allow write: if esAdmin();
+    }
+
+    match /equipos/{id} {
+      allow read: if puedeVer();
+      allow create, delete: if esAdmin();
+      allow update: if esAdmin()
+        || (esSupervisor()
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['tecnicoId', 'prioridad', 'historial', 'actualizado']));
+    }
+  }
+}
