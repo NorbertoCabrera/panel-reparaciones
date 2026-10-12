@@ -60,74 +60,32 @@ La capa de datos expone una interfaz única (`watch`, `add`, `update`, `batch`�
 
 ---
 
-## Probarlo en la PC (modo demo)
+## Ejecutar localmente
+
+Requiere Node 22 o superior. No hay dependencias que instalar.
 
 ```bash
+git clone https://github.com/NorbertoCabrera/panel-reparaciones.git
+cd panel-reparaciones
 node tools/servidor.mjs
 ```
 
-Después abrí http://localhost:5173/?demo
+Abrir http://localhost:5173/?demo. El parámetro `?demo` usa datos de ejemplo guardados en el navegador, sin necesidad de Firebase.
 
----
+## Desplegar una instancia propia
 
-## Publicarlo (gratis) con Firebase
+1. Crear un proyecto en [Firebase](https://console.firebase.google.com) y habilitar **Authentication** (proveedor Google) y **Cloud Firestore**.
+2. Registrar una app web y copiar su configuración en `FIREBASE_CONFIG` (`public/js/config.js`).
+3. Definir el email del administrador en `ADMIN_EMAILS` (`config.js`) y en `ADMINS()` (`firestore.rules`).
+4. Indicar el ID del proyecto en `.firebaserc` y desplegar el hosting y las reglas:
 
-### 1. Crear el proyecto
-1. Entrá a https://console.firebase.google.com con tu cuenta de Google y tocá **Crear un proyecto**. Google Analytics no hace falta.
-2. **Compilación → Authentication → Comenzar → Google →** habilitalo y guardá.
-3. **Compilación → Firestore Database → Crear base de datos →** elegí una ubicación cercana (por ejemplo `southamerica-east1`) y empezá en **modo de producción**.
-4. **⚙️ Configuración del proyecto → Tus apps →** ícono **`</>`** (Web), poné un nombre y registrala. Copiá el objeto `firebaseConfig` que te muestra.
-
-### 2. Configurar el panel
-1. En `public/js/config.js`:
-   - Pegá los valores de `firebaseConfig` en `FIREBASE_CONFIG`.
-   - Poné tu Gmail en `ADMIN_EMAILS`.
-2. En `firestore.rules` reemplazá `TU_EMAIL@gmail.com` por **el mismo Gmail**.
-
-### 3. Publicar
 ```bash
 npx firebase-tools login
-```
-```bash
 npx firebase-tools deploy
 ```
 
-Al terminar te muestra la URL, del estilo `https://tu-proyecto.web.app`. **Ese es el link para tu jefe.**
+Los demás usuarios y sus roles se administran desde la sección **Ajustes** de la app.
 
-> Requiere **Node 22 o más nuevo** (`winget install OpenJS.NodeJS.LTS`). Los comandos se ejecutan dentro de la carpeta del proyecto.
+## Personalización
 
-### 4. Dar acceso a tu jefe
-1. Abrí el link, ingresá con tu Gmail y andá a **Ajustes**.
-2. En **Usuarios con acceso**, agregá el Gmail de tu jefe con rol **Supervisor**.
-3. En **Técnicos**, cargá los 5 técnicos (en el modo real empieza vacío).
-4. Pasale el link. Ingresa una sola vez con Google y la sesión queda abierta en su celular.
-   Con **“Agregar a pantalla de inicio”** le queda como una app más.
-
-### Actualizar después de hacer cambios
-```bash
-npx firebase-tools deploy
-```
-
----
-
-## Personalizar
-Todo está en `public/js/config.js`:
-- `APP_NOMBRE`: el título del panel.
-- `ESTADOS`: nombres, colores e íconos de los estados.
-- `TIPOS`: tipos de equipo sugeridos.
-- `DIAS_ALERTA`: a partir de cuántos días un equipo se marca en amarillo o en rojo.
-
-Si agregás o quitás un administrador fijo, cambialo en `config.js` **y** en `firestore.rules`, y volvé a publicar.
-
-## Estructura
-```
-public/            lo que se publica
-  index.html
-  css/estilos.css
-  js/config.js     configuración
-  js/data.js       conexión a Firebase / modo demo
-  js/app.js        interfaz
-firestore.rules    permisos de la base de datos
-firebase.json      configuración de hosting
-tools/servidor.mjs servidor local para pruebas
-```
+Los estados del flujo de reparación, los tipos de equipo, los colores y los umbrales de alerta por demora se configuran en [`public/js/config.js`](public/js/config.js).
