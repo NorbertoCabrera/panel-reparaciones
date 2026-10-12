@@ -4,7 +4,7 @@ Aplicación web para seguir en tiempo real el estado de los equipos en reparaci�
 
 Nació de una necesidad concreta del taller donde trabajo. El responsable necesitaba ver **desde el celular**, de un vistazo, en qué estado está cada equipo y quién lo tiene asignado, y poder reorganizar las prioridades del trabajo sin depender de planillas ni mensajes.
 
-**▶ Demo en vivo:** **https://USUARIO.github.io/REPO/** (datos de ejemplo, sin login; con el selector de arriba podés probar los distintos roles)
+**▶ Demo en vivo:** **https://norbertocabrera.github.io/panel-reparaciones/** (datos de ejemplo, sin login; con el selector de arriba podés probar los distintos roles)
 
 <p align="center">
   <img src="docs/movil-panel.jpg" width="250" alt="Panel principal en el celular">
